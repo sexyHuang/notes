@@ -89,4 +89,7 @@ $ git branch [branch-name]
 $ git checkout -b [branch-name] [remote-branch]
 ```
 
-#### 提交
+### Rebase（变基）
+
+把分叉的提交历史“整理”成一条直线，看上去更直观。缺点是本地的分叉提交已经被修改过了。
+<a herf="https://git-scm.com/book/zh/v2/Git-%E5%88%86%E6%94%AF-%E5%8F%98%E5%9F%BA">详细</a>
