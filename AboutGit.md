@@ -20,3 +20,73 @@
 
 日常工作流程：
 <image src="./images/git_daily_work.jpg">
+
+### Git 命令集
+
+#### 初始化
+
+```bash
+# 在当前目录新建git代码库
+$ git init
+
+# clone一个项目和它整个代码历史
+$ git clone [url]
+```
+
+#### 配置
+
+```bash
+# 列出所有配置
+$ git config -l
+
+# 配置命令别名
+$ git config --global alias.co checkout
+
+# 设置用户信息
+$ git config [--global] user.name "[name]"
+$ git config [--global] user.email "[email address]"
+```
+
+Git 用户的配置文件位于 `~/.gitconfig`  
+单仓库的配置文件位于`~/$PROJECT_PATH/.git/config`
+
+#### 文件操作
+
+```bash
+# to Index
+
+$ git add .
+
+$ git add <file1> <file2>...
+
+$ git add <dir>
+
+$ git rm [file1] [file2] ...
+
+# 停止跟踪文件，保留文件在Workspace
+$ git rm --cached [file]
+
+$ git mv [file-original] [file-renamed]
+
+# 丢弃工作区修改
+$ git checkout -- <file>
+
+# 丢弃暂存区修改
+$ git reset HEAD <file>
+```
+
+操作.gitignore，可以控制 git 跟踪文件范围。
+
+#### 分支操作
+
+```bash
+$ git branch
+
+$ git branch -a
+
+$ git branch [branch-name]
+
+$ git checkout -b [branch-name] [remote-branch]
+```
+
+#### 提交
