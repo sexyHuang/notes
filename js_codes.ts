@@ -26,3 +26,5 @@ for (let [idx, value] of arr.entries()) {
  * 需要引入@babel/plugin-proposal-unicode-property-regex 和 regexpu-core 进行优雅降级
  */
 /\p{Unified_Ideograph}/u;
+
+/[\p{Unified_Ideograph}\p{L}\p{M}\p{S}\p{N}\p{P}]/;
