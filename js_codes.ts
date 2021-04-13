@@ -28,3 +28,7 @@ for (let [idx, value] of arr.entries()) {
 /\p{Unified_Ideograph}/u;
 
 /[\p{Unified_Ideograph}\p{L}\p{M}\p{S}\p{N}\p{P}]/;
+
+
+// 正则具名匹配
+const numberReg = /(?<integer>\d*)(?<point>\.)(?<float>\d*)/
