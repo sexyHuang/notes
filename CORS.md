@@ -1,25 +1,28 @@
 ## CORS(Cross Origin Resource Sharing)跨域资源共享
 
+### 可用场景
+
+- XMLHttpRequest / Fetch 发起的跨域 HTTP 请求
+- Web 字体（CSS 中通过 @font-face 使用跨域字体资源）
+- WebGL 贴图
+- drawImage 将 Images/Video 绘制到 canvas
+
 CORS 请求分成简单请求和非简单请求两类。
-
-满足下面两个条件为简单请求
-
-1. method 为 HEAD、GET、POST 之一
-2. HEADER 不超出下面字段
-   - Accept
-   - Accept-Language
-   - Content-Language
-   - Last-Event-ID
-   - Content-type: 只限 application/x-www-form-urlencoded、multipart/form-data、text/plain
 
 ### CORS 相关响应头(Access-Control-开头)
 
-1. Access-Control-Allow-Origin
-   值为 Origin 的值/\*
-2. Access-Control-Allow-Credentials\<boolean>
+1. **Access-Control-Allow-Origin**： \<origin> | \*
+   指定了一个可以存取资源的 URI
+2. **Access-Control-Allow-Credentials**\<boolean>
    表示是否允许发送 Cookie
-3. Access-Control-Expose-Headers（可选）
+3. **Access-Control-Expose-Headers**：\<field-name>[, \field-name>]\*  
    用于指定 XMLHttpRequest 对象的 getResponseHeader()方法可以拿到的除了 Cache-Control、Content-Language、Content-Type、Expires、Last-Modified、Pragma 外的字段。
+4. **Access-Control-Allow-Headers**： \<field-name>[, \field-name>]\*  
+   用于预检请求的响应。其指明了实际请求中允许携带的首部字段。
+5. **Access-Control-Max-Age**: \<delta-seconds>
+   delta-seconds 参数表示 preflight 请求的结果在多少秒内有效。
+6. **Access-Control-Allow-Methods**: \<method>[, \<method>]\*
+   用于预检请求的响应。其指明了实际请求所允许使用的 HTTP 方法。
 
 ### withCredentials 属性
 
@@ -33,7 +36,30 @@ xhr.withCredentials = true;
 
 P.S. 当需要发送 cookie 时，Access-Control-Allow-Origin 只能为明确的，与请求页面一致的域名。
 
-### 预检请求
+### 简单请求
+
+满足下面两个条件为简单请求
+
+1. method 为 HEAD、GET、POST 之一
+2. HEADER 不超出下面字段：
+   - Accept
+   - Accept-Language
+   - Content-Language
+   - DPR
+   - Downlink
+   - Save-Data
+   - Viewport-Width
+   - Width
+   - Content-Type，仅限：
+     - application/x-www-form-urlencoded
+     - multipart/form-data
+     - text/plain
+3. 请求中的任意 XMLHttpRequestUpload 对象均没有注册任何事件监听器；XMLHttpRequestUpload 对象可以使用 XMLHttpRequest.upload 属性访问。
+4. 请求中没有使用 ReadableStream。
+
+### 复杂请求（非简单请求）
+
+#### 预检请求
 
 非简单请求时，会在正式通信前，增加一次 HTTP 查询请求（preflight）
 
@@ -73,7 +99,7 @@ XMLHttpRequest cannot load http://api.alice.com.
 Origin http://api.bob.com is not allowed by Access-Control-Allow-Origin.
 ```
 
-preflight 回应示例
+##### preflight 回应示例
 
 ```
 HTTP/1.1 200 OK
@@ -93,5 +119,30 @@ Content-Type: text/plain
 
 ```
 
-**Access-Control-Max-Age**
-预检请求缓存有效期(s)，有效期期间不用再次发出另一条预检请求
+#### 预检请求与重定向
+
+大多数浏览器不支持针对于预检请求的重定向。如果一个预检请求发生了重定向，浏览器将报告错误：
+
+```
+The request was redirected to 'https://example.com/foo', which is disallowed for cross-origin requests that require preflight
+
+Request requires preflight, which is disallowed to follow cross-origin redirect
+```
+
+CORS 最初要求该行为，不过在后续的修订中废弃了这一要求。
+
+在浏览器的实现跟上规范之前，有两种方式规避上述报错行为：
+
+- 服务器去掉对预检请求的重定向
+- 改成简单请求
+
+如果上述方式难以做到，还可以：
+
+1.  用简单请求（通过 Response.url/XHR.responseURL）以判断预检请求会返回的地址。
+2.  发出真正的请求，使用上一步 Response.url/XHR.responseURL 获得的 URL。
+
+#### 附带身份凭证的请求与通配符
+
+一般而言，对于跨域的 XHR/Fetch 请求，浏览器不会发送身份凭证信息。如果要发送凭证信息，需要设置 XHR 的某个特殊标志位。
+
+**注意：** 对于附带身份凭证的请求，服务器不得设置 Access-Control-Allow-Origin 的值为“ \* ”
